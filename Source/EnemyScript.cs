@@ -7,38 +7,24 @@ public class EnemyScript : InteractableObject {
 	//player var
 	private Transform player;
 
+	[HideInInspector]
+	public SecondaryState secondaryState;
 	//self vars
 	public int health;
-	public SecondaryState secondaryState;
 
 	//death vars
-	public AudioClip deathSound;
 	public AudioClip enemyHurt;
-
-	//sleep sprite
-	public Transform sleepSprite;
-	private SpriteRenderer sleepSpriteRend;
+	public AudioClip deathSound;
 
 	//state vars
 	public bool grounded = true;
-
-	public enum SecondaryState : int
-	{
-		Attack,
-		Asleep,
-		Bounce
-	}
 
 	// Use this for initialization
 	void Start () {
 		Setup ();
 
-		health = -1;
+		//health = 3;
 		player = GameObject.FindGameObjectWithTag ("Player").transform;
-		if (sleepSprite)
-		{
-			sleepSpriteRend = sleepSprite.GetComponent<SpriteRenderer> ();
-		}
 	}
 
 	// Update is called once per frame
@@ -62,58 +48,9 @@ public class EnemyScript : InteractableObject {
 		rb.gravityScale = 0;
 	}
 
-	//------------------------- STIMULI FUNCTIONS -------------------------// 
-	//------------------------- PRIMARY STATE-BASED BEHAVIOUR -------------------------// 
-
-	//yolo
-	public override void OnEnterGamma ()
-	{
-		audioSource.clip = enemyHurt;
-		audioSource.Play ();
-		health--;
-
-		if (health <= 0 && !destroyed)
-		{
-			destroyed = true;
-			SendMessage("Die");
-		}
-	}
-
-	/////////////////////////// SECONDARY STIMULI /////////////////////////// 
-	public override void OnMusicLullaby()
-	{
-		//do art things here
-		SetSecondaryState (SecondaryState.Asleep);
-		return;
-	}
-	public override void OnMusicMetal() 
-	{
-		//do art things here
-		SetSecondaryState (SecondaryState.Bounce);
-		return;
-	}
-
-	public override void OnStopMusic ()
-	{
-		SetSecondaryState (SecondaryState.Attack);
-	}
-
-	public override void OnMetalSparks() 
-	{
-		audioSource.clip = enemyHurt;
-		audioSource.Play ();
-
-		health--;
-		if (health <= 0 && !destroyed)
-		{
-			destroyed = true;
-			SendMessage("Die");//Die ();
-		}
-		return; 
-	}
-
 	/////////////////////////// SECONDARY STATE-BASED BEHAVIOUR /////////////////////////// 
 	void FixedUpdate () {
+		secondaryState = transform.GetComponent<EnemyPropertiesScript> ().secondaryState;
 		switch (secondaryState)
 		{
 			case SecondaryState.Attack:
@@ -129,54 +66,22 @@ public class EnemyScript : InteractableObject {
 		}
 	}
 
-	/////////////////////////// SET SECONDARY STATES /////////////////////////// 
-	void SetSecondaryState(SecondaryState newState)
-	{
-		switch (secondaryState)
-		{
-			case SecondaryState.Attack:
-				break;
-			case SecondaryState.Asleep:
-				sleepSpriteRend.enabled = false;
-				break;
-			case SecondaryState.Bounce:
-				break;
-			default:
-				throw new UnityException ("BadState");
-		}
-
-		secondaryState = newState;
-
-		switch (secondaryState)
-		{
-			case SecondaryState.Attack:
-				break;
-			case SecondaryState.Asleep:
-				sleepSpriteRend.enabled = true;
-				break;
-			case SecondaryState.Bounce:
-				break;
-			default:
-				throw new UnityException ("BadState");
-		}
-	}
-
 	//Movement
 	void Attack()
 	{
 		if (grounded)
 		{
 			Vector3 move = new Vector3 ((player.position.x - transform.position.x), 0, 0);
-			move.Normalize ();
-			transform.position += move * 3 * Time.deltaTime;
-
-			if (move.x < 0)
+			if (move.x < -0.5)
 			{
 				rend.flipX = true;
-			} else
+			} else if (move.x > 0.5)
 			{
 				rend.flipX = false;
 			}
+
+			move.Normalize ();
+			transform.position += move * 3 * Time.deltaTime;
 		}
 	}
 
@@ -188,12 +93,26 @@ public class EnemyScript : InteractableObject {
 			grounded = false;
 		}
 	}
+
 	/////////////////////////// COLLISION RESET GROUNDED /////////////////////////// 
 	void OnCollisionEnter2D(Collision2D coll)
 	{
 		if (coll.collider.CompareTag("Platform") || coll.collider.CompareTag ("Glass"))
 		{
 			grounded = true;
+		}
+	}
+
+	void TakeDamage(int damage)
+	{
+		audioSource.clip = enemyHurt;
+		audioSource.Play ();
+		health -= damage;
+
+		if (health <= 0 && !destroyed)
+		{
+			destroyed = true;
+			SendMessage("Die");
 		}
 	}
 }

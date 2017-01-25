@@ -65,16 +65,7 @@ public class PlayerScript: InteractableObject {
 
 	void OnTriggerEnter2D(Collider2D other)
 	{
-		
-		if (other.CompareTag ("Key")) 
-		{
-			audioSource.clip = takeKey;
-			audioSource.Play ();
-
-			numKeys++;
-			other.GetComponent<KeyScript> ().Take ();
-		} 
-		else if (other.CompareTag ("Door")) 
+		if (other.CompareTag ("Door")) 
 		{
 			if (numKeys > 0)
 			{
@@ -124,7 +115,7 @@ public class PlayerScript: InteractableObject {
 		{
 			EnemyScript enemy = other.GetComponent<EnemyScript> ();
 
-			if (enemy.secondaryState == EnemyScript.SecondaryState.Attack)
+			if (enemy.secondaryState == SecondaryState.Attack)
 			{
 				audioSource.clip = playerHurt;
 				audioSource.Play ();

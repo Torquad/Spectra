@@ -5,15 +5,15 @@ using UnityEngine;
 //class for dynamically adding custom script components to game objects
 public class PropertiesScript : MonoBehaviour {
 	//dropdown menus
-	public ObjectColor color;
-	public bool container;
-	public AudioClip containerRevealSound;
+	public ObjectColor color = ObjectColor.None;
+	public bool container = false;
+	public AudioClip containerSound = null;
+	public bool gammaDestructable = false;
 
 	//script references
 	private ColoredObject coloredObject;
-
 	private ContainerObject containerObject;
-
+	private DestructableObject destructableObject;
 
 	// Use this for initialization
 	void Start () {
@@ -25,7 +25,11 @@ public class PropertiesScript : MonoBehaviour {
 		if (container)
 		{
 			containerObject = this.gameObject.AddComponent<ContainerObject> ();
-			containerObject.reveal = containerRevealSound;
+			containerObject.reveal = containerSound;
+		}
+		if (gammaDestructable)
+		{
+			destructableObject = this.gameObject.AddComponent<DestructableObject> ();
 		}
 
 		//remove properties script at the end

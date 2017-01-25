@@ -42,7 +42,7 @@ public class MetalPlatformScript : InteractableObject {
 			InteractableObject iO = target.transform.GetComponent<InteractableObject> ();
 			if (iO != null)
 			{
-				iO.Invoke ("OnMetalSparks", 0);
+				iO.SendMessage ("OnMetalSparks");
 			}
 		}
 	}

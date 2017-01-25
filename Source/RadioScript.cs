@@ -46,8 +46,12 @@ public class RadioScript : InteractableObject {
 		/////PLAY AUDIO CLIP/////
 		if (musicSource.isPlaying && musicSource.clip != clip)
 		{
-			originalClip = musicSource.clip;
-			clipTime = musicSource.time;
+			//dont save the state of another radio clip
+			if (musicSource.clip != lullabyClip && musicSource.clip != metalClip && musicSource.clip != operaClip)
+			{
+				originalClip = musicSource.clip;
+				clipTime = musicSource.time;
+			}
 			musicSource.Stop ();
 		}
 
@@ -68,7 +72,7 @@ public class RadioScript : InteractableObject {
 			if (iO != null)
 			{
 				effectedEnemies.AddLast (iO);
-				iO.Invoke ("OnMusic" + musicType, 0);
+				iO.SendMessage ("OnMusic" + musicType);
 			}
 		}
 	}
@@ -102,7 +106,7 @@ public class RadioScript : InteractableObject {
 		{
 			if (iO != null && iO.Value != null)
 			{
-				iO.Value.Invoke ("OnStopMusic", 0);
+				iO.Value.SendMessage ("OnStopMusic");
 			}
 		}
 		effectedEnemies.Clear ();
